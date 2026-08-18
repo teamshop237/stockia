@@ -9,9 +9,12 @@ export function DashboardPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [reloadToken, setReloadToken] = useState(0)
 
   useEffect(() => {
     let active = true
+    setLoading(true)
+    setError(null)
     listProducts('')
       .then((data) => {
         if (active) setProducts(data)
@@ -25,14 +28,25 @@ export function DashboardPage() {
     return () => {
       active = false
     }
-  }, [])
+  }, [reloadToken])
 
   if (loading) {
     return <p className="text-gray-500">Chargement…</p>
   }
 
   if (error) {
-    return <p className="text-sm text-red-600">{error}</p>
+    return (
+      <div className="flex items-center gap-3">
+        <p className="text-sm text-red-600">{error}</p>
+        <button
+          type="button"
+          onClick={() => setReloadToken((t) => t + 1)}
+          className="text-sm font-medium text-blue-600 hover:underline"
+        >
+          Réessayer
+        </button>
+      </div>
+    )
   }
 
   if (products.length === 0) {

@@ -13,12 +13,14 @@ export function ProductsPage() {
   const { profile } = useAuth()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [modalProduct, setModalProduct] = useState<Product | 'new' | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [reloadToken, setReloadToken] = useState(0)
 
   const requestId = useRef(0)
 
@@ -30,7 +32,7 @@ export function ProductsPage() {
   useEffect(() => {
     const id = ++requestId.current
     setLoading(true)
-    setError(null)
+    setLoadError(null)
     listProducts(search)
       .then((data) => {
         if (id !== requestId.current) return
@@ -38,13 +40,13 @@ export function ProductsPage() {
       })
       .catch((err) => {
         if (id !== requestId.current) return
-        setError(err instanceof Error ? err.message : 'Impossible de charger les produits.')
+        setLoadError(err instanceof Error ? err.message : 'Impossible de charger les produits.')
       })
       .finally(() => {
         if (id !== requestId.current) return
         setLoading(false)
       })
-  }, [search])
+  }, [search, reloadToken])
 
   async function handleSubmit(input: ProductInput) {
     if (modalProduct === 'new') {
@@ -61,12 +63,13 @@ export function ProductsPage() {
   async function handleDelete() {
     if (!deleteTarget) return
     setDeleting(true)
+    setDeleteError(null)
     try {
       await deleteProduct(deleteTarget.id)
       setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id))
       setDeleteTarget(null)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Échec de la suppression.')
+      setDeleteError(err instanceof Error ? err.message : 'Échec de la suppression.')
     } finally {
       setDeleting(false)
     }
@@ -93,11 +96,24 @@ export function ProductsPage() {
         className="mt-4 block w-full max-w-sm rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none"
       />
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {loadError && (
+        <div className="mt-4 flex items-center gap-3">
+          <p className="text-sm text-red-600">{loadError}</p>
+          <button
+            type="button"
+            onClick={() => setReloadToken((t) => t + 1)}
+            className="text-sm font-medium text-blue-600 hover:underline"
+          >
+            Réessayer
+          </button>
+        </div>
+      )}
+
+      {deleteError && <p className="mt-4 text-sm text-red-600">{deleteError}</p>}
 
       {loading ? (
         <p className="mt-6 text-gray-500">Chargement…</p>
-      ) : products.length === 0 ? (
+      ) : loadError ? null : products.length === 0 ? (
         <p className="mt-6 text-gray-500">
           {search
             ? 'Aucun produit ne correspond à ta recherche.'
