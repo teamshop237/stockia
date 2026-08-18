@@ -11,3 +11,25 @@ export type Profile = {
   role: 'owner' | 'member'
   created_at: string
 }
+
+export type Product = {
+  id: string
+  organization_id: string
+  name: string
+  reference: string | null
+  quantity: number
+  alert_threshold: number
+  price: number
+  category: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type ProductInput = {
+  name: string
+  reference: string | null
+  quantity: number
+  alert_threshold: number
+  price: number
+  category: string | null
+}
