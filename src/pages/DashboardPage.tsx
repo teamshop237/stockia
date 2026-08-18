@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { listProducts } from '../lib/products'
 import type { Product } from '../types/database'
 import { StatCard } from '../components/StatCard'
+import { AiAnalysisSection } from '../components/AiAnalysisSection'
 
 export function DashboardPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -98,6 +99,8 @@ export function DashboardPage() {
           </div>
         )}
       </div>
+
+      <AiAnalysisSection />
     </div>
   )
 }
