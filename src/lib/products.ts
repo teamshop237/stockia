@@ -48,3 +48,16 @@ export async function deleteProduct(id: string): Promise<void> {
   const { error } = await supabase.from('products').delete().eq('id', id)
   if (error) throw error
 }
+
+export async function importProducts(
+  organizationId: string,
+  inputs: ProductInput[],
+): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .insert(inputs.map((input) => ({ ...input, organization_id: organizationId })))
+    .select()
+
+  if (error) throw error
+  return data
+}

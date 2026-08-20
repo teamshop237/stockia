@@ -10,26 +10,20 @@ décisions techniques.
    `anon` de ton projet Supabase (Settings → API).
 3. `npm run dev`
 
-## Déploiement (Vercel)
+## Déploiement (Cloudflare)
 
-Le frontend (Vite/React) se déploie sur Vercel ; le backend (base de données,
-auth, Edge Function IA) reste entièrement sur Supabase — il n'y a rien à
-déployer côté serveur pour Vercel.
+Le frontend est déployé sur Cloudflare Workers (Static Assets) ; le backend
+(base de données, auth, Edge Function IA) reste sur Supabase.
 
-1. Importer le dépôt GitHub dans Vercel (aucune configuration de build
-   nécessaire, Vercel détecte Vite automatiquement).
-2. Dans **Project Settings → Environment Variables**, ajouter `VITE_SUPABASE_URL`
-   et `VITE_SUPABASE_ANON_KEY` avec les valeurs du projet Supabase de
-   **production** (peuvent différer de celles utilisées en local si tu as des
-   projets Supabase séparés dev/prod). Ne jamais committer ces valeurs dans
-   le repo — elles vivent uniquement dans `.env.local` (dev, gitignored) et
-   dans les variables d'environnement Vercel (prod).
-3. `vercel.json` contient déjà la règle de réécriture nécessaire pour que le
-   routage côté client (React Router) fonctionne sur un rechargement direct
-   d'une route comme `/dashboard` (sans ça, Vercel renverrait une 404).
-4. La clé `ANTHROPIC_API_KEY` ne doit **jamais** être ajoutée à Vercel — elle
-   reste uniquement dans les secrets d'Edge Function Supabase, puisque le
-   frontend ne l'utilise jamais directement.
-5. Avant de mettre en prod, réactiver **"Confirm email"** dans Supabase
-   (Authentication → Sign In / Providers) si tu l'avais désactivé pour tester
-   plus vite en dev.
+```bash
+npx wrangler login   # une seule fois
+npm run deploy       # build + déploiement
+```
+
+Voir [DEPLOY.md](./DEPLOY.md) pour la procédure complète : variables
+d'environnement, configuration Supabase à faire après la mise en ligne,
+domaine personnalisé et checklist de vérification.
+
+`public/_redirects` et `vercel.json` restent dans le repo au cas où tu
+redéploierais un jour sur Netlify ou Vercel, mais ne sont pas utilisés par
+Cloudflare — le routage SPA est géré par `wrangler.jsonc`.

@@ -33,3 +33,16 @@ export type ProductInput = {
   price: number
   category: string | null
 }
+
+export type MovementType = 'in' | 'out'
+
+export type StockMovement = {
+  id: string
+  organization_id: string
+  product_id: string
+  type: MovementType
+  quantity: number
+  note: string | null
+  created_by: string | null
+  created_at: string
+}

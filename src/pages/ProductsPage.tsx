@@ -1,9 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { listProducts, createProduct, updateProduct, deleteProduct } from '../lib/products'
+import {
+  listProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  importProducts,
+} from '../lib/products'
 import type { Product, ProductInput } from '../types/database'
 import { ProductFormModal } from '../components/ProductFormModal'
 import { ConfirmDialog } from '../components/ConfirmDialog'
+import { ImportProductsModal } from '../components/ImportProductsModal'
+import { StockMovementsModal } from '../components/StockMovementsModal'
 
 function byName(a: Product, b: Product) {
   return a.name.localeCompare(b.name)
@@ -21,6 +29,8 @@ export function ProductsPage() {
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [reloadToken, setReloadToken] = useState(0)
+  const [importOpen, setImportOpen] = useState(false)
+  const [historyTarget, setHistoryTarget] = useState<Product | null>(null)
 
   const requestId = useRef(0)
 
@@ -79,13 +89,22 @@ export function ProductsPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-semibold text-gray-900">Produits</h1>
-        <button
-          type="button"
-          onClick={() => setModalProduct('new')}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          + Ajouter un produit
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => setImportOpen(true)}
+            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Importer CSV
+          </button>
+          <button
+            type="button"
+            onClick={() => setModalProduct('new')}
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            + Ajouter un produit
+          </button>
+        </div>
       </div>
 
       <input
@@ -153,8 +172,15 @@ export function ProductsPage() {
                     <td className="py-2 pr-4 text-right whitespace-nowrap">
                       <button
                         type="button"
+                        onClick={() => setHistoryTarget(p)}
+                        className="text-gray-600 hover:underline"
+                      >
+                        Historique
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => setModalProduct(p)}
-                        className="text-blue-600 hover:underline"
+                        className="ml-3 text-blue-600 hover:underline"
                       >
                         Modifier
                       </button>
@@ -179,6 +205,30 @@ export function ProductsPage() {
           product={modalProduct === 'new' ? null : modalProduct}
           onCancel={() => setModalProduct(null)}
           onSubmit={handleSubmit}
+        />
+      )}
+
+      {importOpen && profile && (
+        <ImportProductsModal
+          onCancel={() => setImportOpen(false)}
+          onImport={(inputs) => importProducts(profile.organization_id, inputs)}
+          onImported={(created) => {
+            setProducts((prev) => [...prev, ...created].sort(byName))
+            setImportOpen(false)
+          }}
+        />
+      )}
+
+      {historyTarget && (
+        <StockMovementsModal
+          product={historyTarget}
+          onCancel={() => setHistoryTarget(null)}
+          onQuantityChange={(productId, newQuantity) => {
+            setProducts((prev) =>
+              prev.map((p) => (p.id === productId ? { ...p, quantity: newQuantity } : p)),
+            )
+            setHistoryTarget((prev) => (prev ? { ...prev, quantity: newQuantity } : prev))
+          }}
         />
       )}
 
