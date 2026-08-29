@@ -21,6 +21,9 @@ export function AdminLayout() {
             <Link to="/admin/organizations" className="text-gray-300 hover:text-white">
               Organisations
             </Link>
+            <Link to="/admin/admins" className="text-gray-300 hover:text-white">
+              Administrateurs
+            </Link>
             <button
               type="button"
               onClick={handleSignOut}

@@ -9,6 +9,7 @@ export function AdminOrganizationsPage() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [reloadToken, setReloadToken] = useState(0)
+  const [search, setSearch] = useState('')
 
   const [target, setTarget] = useState<OrganizationAdminSummary | null>(null)
   const [updating, setUpdating] = useState(false)
@@ -52,12 +53,24 @@ export function AdminOrganizationsPage() {
     }
   }
 
+  const filtered = organizations.filter((org) =>
+    org.name.toLowerCase().includes(search.trim().toLowerCase()),
+  )
+
   return (
     <div>
       <h1 className="text-xl font-semibold text-gray-900">Organisations</h1>
       <p className="mt-1 text-sm text-gray-500">
         {organizations.length} organisation{organizations.length > 1 ? 's' : ''} au total.
       </p>
+
+      <input
+        type="search"
+        placeholder="Rechercher par nom…"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="mt-4 w-full max-w-xs rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+      />
 
       {updateError && <p className="mt-4 text-sm text-red-600">{updateError}</p>}
 
@@ -76,7 +89,9 @@ export function AdminOrganizationsPage() {
 
       {loading ? (
         <p className="mt-6 text-gray-500">Chargement…</p>
-      ) : loadError ? null : (
+      ) : loadError ? null : filtered.length === 0 ? (
+        <p className="mt-6 text-gray-500">Aucune organisation ne correspond à "{search}".</p>
+      ) : (
         <div className="mt-6 overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead>
@@ -90,7 +105,7 @@ export function AdminOrganizationsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {organizations.map((org) => (
+              {filtered.map((org) => (
                 <tr key={org.id}>
                   <td className="py-2 pr-4 font-medium text-gray-900">
                     <Link to={`/admin/organizations/${org.id}`} className="text-blue-600 hover:underline">

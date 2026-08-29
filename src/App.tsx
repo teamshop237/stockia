@@ -14,6 +14,7 @@ import { AdminLayout } from './components/admin/AdminLayout'
 import { AdminLoginPage } from './pages/admin/AdminLoginPage'
 import { AdminOrganizationsPage } from './pages/admin/AdminOrganizationsPage'
 import { AdminOrganizationDetailPage } from './pages/admin/AdminOrganizationDetailPage'
+import { AdminAdminsPage } from './pages/admin/AdminAdminsPage'
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route index element={<Navigate to="organizations" replace />} />
           <Route path="organizations" element={<AdminOrganizationsPage />} />
           <Route path="organizations/:id" element={<AdminOrganizationDetailPage />} />
+          <Route path="admins" element={<AdminAdminsPage />} />
         </Route>
       </Route>
 
