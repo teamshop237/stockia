@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -6,11 +6,36 @@ import { useAuth } from '../context/AuthContext'
 export function OnboardingPage() {
   const navigate = useNavigate()
   const { session, profile, loading, refreshProfile } = useAuth()
+  const [checkingInvite, setCheckingInvite] = useState(true)
   const [orgName, setOrgName] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  if (loading) {
+  useEffect(() => {
+    if (loading || !session || profile) {
+      setCheckingInvite(false)
+      return
+    }
+
+    let active = true
+    supabase
+      .rpc('join_invited_organization')
+      .then(async ({ data, error: rpcError }) => {
+        if (!active) return
+        if (!rpcError && data) {
+          await refreshProfile()
+          navigate('/dashboard', { replace: true })
+          return
+        }
+        setCheckingInvite(false)
+      })
+    return () => {
+      active = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, session, profile])
+
+  if (loading || checkingInvite) {
     return <p className="text-gray-500">Chargement…</p>
   }
 

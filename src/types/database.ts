@@ -1,7 +1,17 @@
 export type Organization = {
   id: string
   name: string
+  suspended: boolean
   created_at: string
+}
+
+export type OrganizationAdminSummary = {
+  id: string
+  name: string
+  suspended: boolean
+  created_at: string
+  member_count: number
+  product_count: number
 }
 
 export type Profile = {
@@ -9,6 +19,7 @@ export type Profile = {
   organization_id: string
   full_name: string | null
   role: 'owner' | 'member'
+  email: string | null
   created_at: string
 }
 

@@ -25,6 +25,9 @@ export function Layout() {
               <Link to="/products" className="text-gray-600 hover:text-gray-900">
                 Produits
               </Link>
+              <Link to="/team" className="text-gray-600 hover:text-gray-900">
+                Équipe
+              </Link>
               <button
                 type="button"
                 onClick={handleSignOut}
